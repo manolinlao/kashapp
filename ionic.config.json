@@ -1,0 +1,7 @@
+{
+  "name": "kashapp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
