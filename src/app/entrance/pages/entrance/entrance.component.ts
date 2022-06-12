@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TraceService } from '../../../services/trace.service';
-import { SignalingService } from '../../../services/signaling.service';
-import { UserService } from '../../../services/user.service';
-import { AuthService } from '../../../auth/services/auth.service';
-import { Subscription } from 'rxjs';
-import {
-  AtmInfo,
-  CapabilitiesAtm,
-  Device,
-  State,
-} from '../../interfaces/entrance.interface';
-import { Router } from '@angular/router';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {TraceService} from '../../../services/trace.service';
+import {SignalingService} from '../../../services/signaling.service';
+import {UserService} from '../../../services/user.service';
+import {AuthService} from '../../../auth/services/auth.service';
+import {Subscription} from 'rxjs';
+import {AtmInfo, CapabilitiesAtm, Device, State} from '../../interfaces/entrance.interface';
+import {Router} from '@angular/router';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -21,7 +16,7 @@ import {
   LoadingController,
   NavController,
 } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-entrance',
@@ -79,75 +74,67 @@ export class EntranceComponent implements OnInit, OnDestroy {
       this.signalingService.sendGetActualState();
     }
 
-    this.subscriptionLogin = this.signalingService
-      .getSubject()
-      .subscribe((resp: any) => {
-        this.trace.write3(
-          'entrance',
-          'subscriptionLogin response',
-          JSON.stringify(resp)
-        );
-        const objResp = JSON.parse(resp);
+    this.subscriptionLogin = this.signalingService.getSubject().subscribe((resp: any) => {
+      this.trace.write3('entrance', 'subscriptionLogin response', JSON.stringify(resp));
+      const objResp = JSON.parse(resp);
 
-        if (objResp.type === 'error') {
-          setTimeout(() => {
-            // sessionStorage.removeItem('cashapp_token');
-            this.loading.dismiss();
-            this.showError('Login error', objResp.errorDescription);
-            this.router.navigate(['/auth']);
-          }, 2000);
-        }
-      });
-
-    this.subscription = this.signalingService
-      .getSubjectState()
-      .subscribe((state: State) => {
-        this.trace.write3('entrance', 'state received', JSON.stringify(state));
-
-        if (!state.connected) {
-          // conectado, ahora podemos añadirnos como cliente
-          this.trace.write3('entrance', 'state received', 'connected');
-          this.signalingService.addClient(`${this.authService.auth?.name}`);
-        } else {
-          this.clients = [];
-          this.devices = [];
-          if (state.devices?.length !== 0) {
-            this.devices = [...state.devices!];
-            this.atms = [];
-            for (let ind = 0; ind < state.devices!.length; ind++) {
-              let capability: number = CapabilitiesAtm.all;
-
-              if (state.devices![ind].operator && state.devices![ind].client) {
-                capability = CapabilitiesAtm.onlyStatus;
-              }
-              if (state.devices![ind].operator && !state.devices![ind].client) {
-                capability = CapabilitiesAtm.onlyStatus;
-              }
-              if (!state.devices![ind].operator && state.devices![ind].client) {
-                capability = CapabilitiesAtm.onlyStatus;
-              }
-
-              this.atms[ind] = {
-                name: state.devices![ind].atm,
-                capability,
-              };
-            }
-          } else {
-            this.atms = [];
-          }
-
-          if (state.clients) {
-            if (state.clients?.length !== 0) {
-              for (let ind = 0; ind < state.clients?.length; ind++) {
-                this.clients[ind] = state.clients![ind].name;
-              }
-            }
-          }
-
+      if (objResp.type === 'error') {
+        setTimeout(() => {
+          // sessionStorage.removeItem('cashapp_token');
           this.loading.dismiss();
-          this.waiting = false;
+          this.showError('Login error', objResp.errorDescription);
+          this.router.navigate(['/auth']);
+        }, 2000);
+      }
+    });
+
+    this.subscription = this.signalingService.getSubjectState().subscribe((state: State) => {
+      this.trace.write3('entrance', 'state received', JSON.stringify(state));
+
+      if (!state.connected) {
+        // conectado, ahora podemos añadirnos como cliente
+        this.trace.write3('entrance', 'state received', 'connected');
+        this.signalingService.addClient(`${this.authService.auth?.name}`);
+      } else {
+        this.clients = [];
+        this.devices = [];
+        if (state.devices?.length !== 0) {
+          this.devices = [...state.devices!];
+          this.atms = [];
+          for (let ind = 0; ind < state.devices!.length; ind++) {
+            let capability: number = CapabilitiesAtm.all;
+
+            if (state.devices![ind].operator && state.devices![ind].client) {
+              capability = CapabilitiesAtm.onlyStatus;
+            }
+            if (state.devices![ind].operator && !state.devices![ind].client) {
+              capability = CapabilitiesAtm.onlyStatus;
+            }
+            if (!state.devices![ind].operator && state.devices![ind].client) {
+              capability = CapabilitiesAtm.onlyStatus;
+            }
+
+            this.atms[ind] = {
+              name: state.devices![ind].atm,
+              capability,
+            };
+          }
+        } else {
+          this.atms = [];
         }
-      });
+
+        if (state.clients) {
+          if (state.clients?.length !== 0) {
+            for (let ind = 0; ind < state.clients?.length; ind++) {
+              this.clients[ind] = state.clients![ind].name;
+            }
+          }
+        }
+
+        this.loading.dismiss();
+        this.waiting = false;
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -181,7 +168,7 @@ export class EntranceComponent implements OnInit, OnDestroy {
 
     await alert.present();
 
-    const { role } = await alert.onDidDismiss();
+    const {role} = await alert.onDidDismiss();
     console.log('onDidDismiss resolved with role', role);
   }
 
@@ -190,17 +177,10 @@ export class EntranceComponent implements OnInit, OnDestroy {
 
     if (atm.includes('not_available')) {
       atm = atm.slice(atm.indexOf('#') + 1);
-      this.showError(
-        'atm ' + atm,
-        this.translate.instant('entrance.notAvailable')
-      );
+      this.showError('atm ' + atm, this.translate.instant('entrance.notAvailable'));
     } else {
       this.deviceSelected = this.devices.find((device) => device.atm === atm);
-      this.trace.write3(
-        'entrance',
-        'deviceSelected',
-        JSON.stringify(this.deviceSelected)
-      );
+      this.trace.write3('entrance', 'deviceSelected', JSON.stringify(this.deviceSelected));
 
       this.openMenu();
     }
@@ -235,29 +215,19 @@ export class EntranceComponent implements OnInit, OnDestroy {
     const actionSheet = await this.actionSheetController.create({
       header: 'ATM ' + this.deviceSelected.atm,
       buttons: btns,
+      mode: 'ios',
     });
 
     await actionSheet.present();
   }
 
   doOperative(typeOp: string): void {
-    this.trace.write3(
-      'entrance',
-      'doOperative::' + typeOp,
-      this.deviceSelected.atm
-    );
+    this.trace.write3('entrance', 'doOperative::' + typeOp, this.deviceSelected.atm);
 
     switch (typeOp) {
       case 'cliente':
-        this.signalingService.connectWithAtmAsClient(
-          this.deviceSelected.atm,
-          `${this.authService.auth?.name}`
-        );
-        this.userService.setTypeUser(
-          'client',
-          this.deviceSelected.atm,
-          this.authService.auth.name
-        );
+        this.signalingService.connectWithAtmAsClient(this.deviceSelected.atm, `${this.authService.auth?.name}`);
+        this.userService.setTypeUser('client', this.deviceSelected.atm, this.authService.auth.name);
 
         this.navController.navigateRoot(['cash']);
         break;
