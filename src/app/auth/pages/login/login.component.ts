@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import {
-  AlertController,
-  LoadingController,
-  NavController,
-} from '@ionic/angular';
-import { Subscription } from 'rxjs';
-import { TraceService } from '../../../services/trace.service';
-import { AuthService } from '../../services/auth.service';
-import { StorageService } from '../../../services/storage.service';
-import { TranslateService } from '@ngx-translate/core';
-import { SignalingService } from '../../../services/signaling.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AlertController, LoadingController, NavController} from '@ionic/angular';
+import {Subscription} from 'rxjs';
+import {TraceService} from '../../../services/trace.service';
+import {AuthService} from '../../services/auth.service';
+import {StorageService} from '../../../services/storage.service';
+import {TranslateService} from '@ngx-translate/core';
+import {SignalingService} from '../../../services/signaling.service';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +32,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private alertController: AlertController,
     private authSevice: AuthService,
     private storageService: StorageService,
-    private router: Router,
     private translateService: TranslateService,
     private signalingService: SignalingService,
     private navController: NavController
@@ -53,6 +47,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.trace.write('login', 'on init');
+
+    this.translateService.setDefaultLang('es');
+    this.translateService.use('es');
 
     // desconexión de usuario
     this.signalingService.close();
@@ -84,16 +81,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       .login(this.myForm.value.username, this.myForm.value.currentPassword)
       .subscribe({
         next: (resp) => {
-          this.trace.write3(
-            'login',
-            'subscription response',
-            JSON.stringify(resp)
-          );
+          this.trace.write3('login', 'subscription response', JSON.stringify(resp));
           if (resp && resp.name !== '') {
-            this.trace.write(
-              'login.component subscription resp',
-              'user exist - go entrance'
-            );
+            this.trace.write('login.component subscription resp', 'user exist - go entrance');
 
             this.storageService.saveLoginToken(resp);
 
@@ -101,21 +91,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
             this.endLoading(true);
           } else {
-            this.trace.write(
-              'login.component subscription resp',
-              'user does not exist'
-            );
-            this.showLoginError(
-              this.translateService.instant('login.userNotValid')
-            );
+            this.trace.write('login.component subscription resp', 'user does not exist');
+            this.showLoginError(this.translateService.instant('login.userNotValid'));
           }
         },
         error: (err) => {
-          this.trace.write3(
-            'login',
-            'ERROR in subscription',
-            JSON.stringify(err)
-          );
+          this.trace.write3('login', 'ERROR in subscription', JSON.stringify(err));
           this.showLoginError(JSON.stringify(err));
         },
         complete: () => this.trace.write('login', 'Subscription complete'),
@@ -138,7 +119,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     await alert.present();
 
-    const { role } = await alert.onDidDismiss();
+    const {role} = await alert.onDidDismiss();
     console.log('onDidDismiss resolved with role', role);
   }
 
